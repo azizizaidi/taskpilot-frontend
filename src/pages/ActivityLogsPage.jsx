@@ -37,7 +37,9 @@ function ActivityLogsPage() {
           setError(err.response?.data?.message || 'Failed to load activity logs.')
         }
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false)
+      })
     return () => controller.abort()
   }, [page, limit, dateFrom, dateTo])
 

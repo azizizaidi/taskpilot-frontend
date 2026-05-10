@@ -5,6 +5,7 @@ import ErrorMessage from '../components/common/ErrorMessage'
 import EmptyState from '../components/common/EmptyState'
 import Pagination from '../components/common/Pagination'
 import Badge from '../components/common/Badge'
+import Button from '../components/common/Button'
 import { formatDate } from '../utils/formatDate'
 
 function UsersPage() {
@@ -29,7 +30,9 @@ function UsersPage() {
         if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return
         setError(err.response?.data?.message || 'Failed to load users.')
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false)
+      })
     return () => controller.abort()
   }, [page, search])
 
@@ -63,20 +66,9 @@ function UsersPage() {
           placeholder="Search by name or email…"
           className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button
-          type="submit"
-          className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Search
-        </button>
+        <Button type="submit" variant="primary">Search</Button>
         {search && (
-          <button
-            type="button"
-            onClick={handleClearSearch}
-            className="px-3 py-1.5 rounded-md border border-gray-300 text-sm text-gray-600 hover:bg-gray-50"
-          >
-            Clear
-          </button>
+          <Button type="button" variant="secondary" onClick={handleClearSearch}>Clear</Button>
         )}
       </form>
 
@@ -88,8 +80,8 @@ function UsersPage() {
         <EmptyState message={search ? 'No users match your search.' : 'No users found.'} />
       ) : (
         <>
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto">
+            <table className="w-full text-sm min-w-[480px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Name</th>

@@ -1,0 +1,11 @@
+function ErrorMessage({ message }) {
+  if (!message) return null
+
+  return (
+    <div className="rounded-md bg-red-50 border border-red-200 p-4">
+      <p className="text-sm text-red-700">{message}</p>
+    </div>
+  )
+}
+
+export default ErrorMessage

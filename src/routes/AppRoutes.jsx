@@ -11,6 +11,7 @@ import ProjectFormPage from '../pages/ProjectFormPage'
 import TasksPage from '../pages/TasksPage'
 import TaskDetailPage from '../pages/TaskDetailPage'
 import TaskFormPage from '../pages/TaskFormPage'
+import ActivityLogsPage from '../pages/ActivityLogsPage'
 import NotFoundPage from '../pages/NotFoundPage'
 
 function AppRoutes() {
@@ -49,6 +50,7 @@ function AppRoutes() {
           <Route path="/tasks/new" element={<TaskFormPage />} />
           <Route path="/tasks/:id" element={<TaskDetailPage />} />
           <Route path="/tasks/:id/edit" element={<TaskFormPage />} />
+          <Route path="/activity-logs" element={<ActivityLogsPage />} />
         </Route>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<NotFoundPage />} />

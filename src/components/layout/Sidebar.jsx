@@ -1,12 +1,20 @@
 import { NavLink } from 'react-router-dom'
+import useAuth from '../../hooks/useAuth'
 
-const navItems = [
+const baseNavItems = [
   { label: 'Dashboard', to: '/dashboard' },
   { label: 'Projects', to: '/projects' },
   { label: 'Tasks', to: '/tasks' },
 ]
 
 function Sidebar() {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'ADMIN'
+
+  const navItems = isAdmin
+    ? [...baseNavItems, { label: 'Activity Logs', to: '/activity-logs' }]
+    : baseNavItems
+
   return (
     <aside className="w-64 bg-white shadow-md flex-shrink-0">
       <div className="h-16 flex items-center px-6 border-b">

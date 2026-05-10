@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import { getTaskById, updateTask, deleteTask } from '../api/taskApi'
+import { getTaskComments, createTaskComment, updateComment, deleteComment } from '../api/commentApi'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import ErrorMessage from '../components/common/ErrorMessage'
 import Badge from '../components/common/Badge'
 import Button from '../components/common/Button'
 import ConfirmDialog from '../components/common/ConfirmDialog'
+import CommentList from '../components/comments/CommentList'
+import CommentForm from '../components/comments/CommentForm'
 import { formatDate } from '../utils/formatDate'
 
 const STATUS_OPTIONS = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE']
@@ -27,6 +30,21 @@ function TaskDetailPage() {
   const [statusUpdating, setStatusUpdating] = useState(false)
   const [statusError, setStatusError] = useState(null)
 
+  const [comments, setComments] = useState([])
+  const [commentsLoading, setCommentsLoading] = useState(true)
+  const [commentsError, setCommentsError] = useState(null)
+
+  const fetchComments = useCallback(() => {
+    setCommentsLoading(true)
+    setCommentsError(null)
+    getTaskComments(id)
+      .then(setComments)
+      .catch((err) => {
+        setCommentsError(err.response?.data?.message || 'Failed to load comments.')
+      })
+      .finally(() => setCommentsLoading(false))
+  }, [id])
+
   useEffect(() => {
     setLoading(true)
     setError(null)
@@ -40,6 +58,25 @@ function TaskDetailPage() {
       })
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => {
+    fetchComments()
+  }, [fetchComments])
+
+  const handleAddComment = async (content) => {
+    await createTaskComment(id, { content })
+    fetchComments()
+  }
+
+  const handleEditComment = async (commentId, content) => {
+    await updateComment(commentId, { content })
+    fetchComments()
+  }
+
+  const handleDeleteComment = async (commentId) => {
+    await deleteComment(commentId)
+    fetchComments()
+  }
 
   const handleStatusChange = (newStatus) => {
     setStatusUpdating(true)
@@ -192,6 +229,30 @@ function TaskDetailPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Comments section */}
+      <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-base font-semibold text-gray-800 mb-4">Comments</h3>
+
+        {commentsLoading ? (
+          <LoadingSpinner />
+        ) : commentsError ? (
+          <ErrorMessage message={commentsError} />
+        ) : (
+          <CommentList
+            comments={comments}
+            currentUserId={user?.id}
+            isAdmin={isAdmin}
+            onEdit={handleEditComment}
+            onDelete={handleDeleteComment}
+          />
+        )}
+
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Add a comment</p>
+          <CommentForm onSubmit={handleAddComment} />
+        </div>
       </div>
 
       {deleteOpen && (

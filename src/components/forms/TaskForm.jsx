@@ -3,6 +3,7 @@ import Button from '../common/Button'
 import ErrorMessage from '../common/ErrorMessage'
 import LoadingSpinner from '../common/LoadingSpinner'
 import { getProjects } from '../../api/projectApi'
+import { getUsers } from '../../api/userApi'
 
 const STATUS_OPTIONS = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE']
 const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH']
@@ -29,6 +30,9 @@ function TaskForm({ initialValues = {}, onSubmit, submitting, error, submitLabel
   const [projectsLoading, setProjectsLoading] = useState(true)
   const [projectsError, setProjectsError] = useState(null)
 
+  const [users, setUsers] = useState([])
+  const [usersLoading, setUsersLoading] = useState(true)
+
   useEffect(() => {
     getProjects({ limit: 100 })
       .then((data) => {
@@ -37,6 +41,11 @@ function TaskForm({ initialValues = {}, onSubmit, submitting, error, submitLabel
       })
       .catch(() => setProjectsError('Could not load projects. Enter project ID manually.'))
       .finally(() => setProjectsLoading(false))
+
+    getUsers({ limit: 100 })
+      .then((data) => setUsers(data.items || []))
+      .catch(() => {})
+      .finally(() => setUsersLoading(false))
   }, [])
 
   const set = (field, value) => {
@@ -182,18 +191,22 @@ function TaskForm({ initialValues = {}, onSubmit, submitting, error, submitLabel
       {/* Assigned To + Due Date */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Assigned To <span className="text-gray-400 font-normal">(User ID)</span>
-          </label>
-          <input
-            type="number"
-            value={form.assignedToId}
-            onChange={(e) => set('assignedToId', e.target.value)}
-            disabled={submitting}
-            className={inputCls}
-            placeholder="Optional user ID"
-            min="1"
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+          {usersLoading ? (
+            <div className="py-2"><LoadingSpinner /></div>
+          ) : (
+            <select
+              value={form.assignedToId}
+              onChange={(e) => set('assignedToId', e.target.value)}
+              disabled={submitting}
+              className={selectCls}
+            >
+              <option value="">Unassigned</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+              ))}
+            </select>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>

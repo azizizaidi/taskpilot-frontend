@@ -12,7 +12,7 @@ function Sidebar() {
   const isAdmin = user?.role === 'ADMIN'
 
   const navItems = isAdmin
-    ? [...baseNavItems, { label: 'Activity Logs', to: '/activity-logs' }]
+    ? [...baseNavItems, { label: 'Users', to: '/users' }, { label: 'Activity Logs', to: '/activity-logs' }]
     : baseNavItems
 
   return (

@@ -64,12 +64,12 @@ function TaskDetailPage() {
   }, [fetchComments])
 
   const handleAddComment = async (content) => {
-    await createTaskComment(id, { content })
+    await createTaskComment(id, { comment: content })
     fetchComments()
   }
 
   const handleEditComment = async (commentId, content) => {
-    await updateComment(commentId, { content })
+    await updateComment(commentId, { comment: content })
     fetchComments()
   }
 

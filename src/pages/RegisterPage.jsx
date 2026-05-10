@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import Button from '../components/common/Button'
 
-function LoginPage() {
+function RegisterPage() {
   const navigate = useNavigate()
-  const { login, loading, error, isAuthenticated, clearError } = useAuth()
+  const { register, loading, error, isAuthenticated, clearError } = useAuth()
 
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' })
   const [validationErrors, setValidationErrors] = useState({})
 
   useEffect(() => {
@@ -22,8 +22,18 @@ function LoginPage() {
 
   const validate = () => {
     const errors = {}
+    if (!form.name.trim()) errors.name = 'Name is required'
     if (!form.email.trim()) errors.email = 'Email is required'
-    if (!form.password) errors.password = 'Password is required'
+    if (!form.password) {
+      errors.password = 'Password is required'
+    } else if (form.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters'
+    }
+    if (!form.confirmPassword) {
+      errors.confirmPassword = 'Please confirm your password'
+    } else if (form.password !== form.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match'
+    }
     return errors
   }
 
@@ -39,7 +49,11 @@ function LoginPage() {
       setValidationErrors(errors)
       return
     }
-    await login({ email: form.email, password: form.password })
+    await register({
+      name: form.name.trim(),
+      email: form.email.trim(),
+      password: form.password,
+    })
   }
 
   return (
@@ -47,7 +61,7 @@ function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-blue-600">TaskPilot</h1>
-          <p className="mt-2 text-gray-500 text-sm">Sign in to your account</p>
+          <p className="mt-2 text-gray-500 text-sm">Create your account</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
@@ -58,6 +72,27 @@ function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} noValidate>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="name">
+                Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={form.name}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  validationErrors.name ? 'border-red-400' : 'border-gray-300'
+                }`}
+                placeholder="Your full name"
+              />
+              {validationErrors.name && (
+                <p className="mt-1 text-xs text-red-600">{validationErrors.name}</p>
+              )}
+            </div>
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
                 Email
@@ -79,7 +114,7 @@ function LoginPage() {
               )}
             </div>
 
-            <div className="mb-6">
+            <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">
                 Password
               </label>
@@ -87,39 +122,50 @@ function LoginPage() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 value={form.password}
                 onChange={handleChange}
                 className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   validationErrors.password ? 'border-red-400' : 'border-gray-300'
                 }`}
-                placeholder="••••••••"
+                placeholder="Min. 6 characters"
               />
               {validationErrors.password && (
                 <p className="mt-1 text-xs text-red-600">{validationErrors.password}</p>
               )}
             </div>
 
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="confirmPassword">
+                Confirm password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  validationErrors.confirmPassword ? 'border-red-400' : 'border-gray-300'
+                }`}
+                placeholder="••••••••"
+              />
+              {validationErrors.confirmPassword && (
+                <p className="mt-1 text-xs text-red-600">{validationErrors.confirmPassword}</p>
+              )}
+            </div>
+
             <Button type="submit" variant="primary" className="w-full" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? 'Creating account…' : 'Create account'}
             </Button>
           </form>
 
           <p className="mt-5 text-center text-sm text-gray-500">
-            No account?{' '}
-            <Link to="/register" className="text-blue-600 font-medium hover:underline">
-              Create one
+            Already have an account?{' '}
+            <Link to="/login" className="text-blue-600 font-medium hover:underline">
+              Sign in
             </Link>
-          </p>
-        </div>
-
-        <div className="mt-6 bg-blue-50 border border-blue-100 rounded-lg p-4 text-sm text-gray-600">
-          <p className="font-medium text-gray-700 mb-2">Demo accounts</p>
-          <p>
-            <span className="font-medium">Admin</span> — admin@taskpilot.com / password123
-          </p>
-          <p>
-            <span className="font-medium">Member</span> — member@taskpilot.com / password123
           </p>
         </div>
       </div>
@@ -127,4 +173,4 @@ function LoginPage() {
   )
 }
 
-export default LoginPage
+export default RegisterPage

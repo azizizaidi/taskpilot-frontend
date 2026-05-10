@@ -134,7 +134,7 @@ _Add screenshots here once the app is running:_
 
 - **Frontend Repository:** TODO - add GitHub frontend repository URL
 - **Backend Repository:** TODO - add GitHub backend repository URL
-- **Deployed App:** Not deployed / Local demo only
+- **Deployed App:** https://taskpilot.lintaskod.com/login
 
 ## Notes
 

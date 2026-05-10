@@ -130,11 +130,15 @@ _Add screenshots here once the app is running:_
 - `docs/screenshots/task-detail.png`
 - `docs/screenshots/activity-logs.png`
 
+## Demo
+
+Live demo: **[https://taskpilot.lintaskod.com](https://taskpilot.lintaskod.com/)**
+
 ## Project Links
 
 - **Frontend Repository:** TODO - add GitHub frontend repository URL
 - **Backend Repository:** TODO - add GitHub backend repository URL
-- **Deployed App:** Not deployed / Local demo only
+- **Deployed App:** [https://taskpilot.lintaskod.com](https://taskpilot.lintaskod.com/)
 
 ## Notes
 

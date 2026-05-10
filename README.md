@@ -70,7 +70,7 @@ The Vite dev server reads this at build/start time and exposes it via `import.me
 
 ## Run Locally
 
-Make sure the [TaskPilot Backend](#backend-api-connection) is running first.
+Make sure the [TaskPilot Backend](https://github.com/azizizaidi/taskpilot-backend) is running first.
 
 ```bash
 npm install

@@ -132,9 +132,9 @@ _Add screenshots here once the app is running:_
 
 ## Project Links
 
-- **Frontend repository:** _add GitHub URL here_
-- **Backend repository:** _add GitHub URL here_
-- **Deployed app:** _add deployment URL here (e.g., Vercel, Netlify, Cloudflare Pages)_
+- **Frontend Repository:** TODO - add GitHub frontend repository URL
+- **Backend Repository:** TODO - add GitHub backend repository URL
+- **Deployed App:** Not deployed / Local demo only
 
 ## Notes
 

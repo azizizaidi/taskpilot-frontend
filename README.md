@@ -132,9 +132,9 @@ _Add screenshots here once the app is running:_
 
 ## Project Links
 
-- **Frontend Repository:** TODO - add GitHub frontend repository URL
-- **Backend Repository:** TODO - add GitHub backend repository URL
-- **Deployed App:** Not deployed / Local demo only
+- **Frontend Repository:** https://github.com/azizizaidi/taskpilot-frontend
+- **Backend Repository:** https://github.com/azizizaidi/taskpilot-backend
+- **Deployed App:** https://taskpilot.lintaskod.com
 
 ## Notes
 

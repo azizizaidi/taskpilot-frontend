@@ -1,17 +1,29 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import useAuth from '../hooks/useAuth'
-import { getTasks, deleteTask } from '../api/taskApi'
+import { getTasks, updateTask, deleteTask } from '../api/taskApi'
 import { getProjects } from '../api/projectApi'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import ErrorMessage from '../components/common/ErrorMessage'
 import EmptyState from '../components/common/EmptyState'
 import Pagination from '../components/common/Pagination'
 import ConfirmDialog from '../components/common/ConfirmDialog'
+import KanbanColumn from '../components/tasks/KanbanColumn'
 import TaskCard from '../components/cards/TaskCard'
 import Button from '../components/common/Button'
 
 const STATUS_OPTIONS = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE']
+const COLUMN_STATUSES = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE']
+
+function groupTasksByStatus(tasks) {
+  const groups = {}
+  COLUMN_STATUSES.forEach((s) => { groups[s] = [] })
+  tasks.forEach((task) => {
+    if (groups[task.status] !== undefined) groups[task.status].push(task)
+  })
+  return groups
+}
 const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH']
 const SORT_BY_OPTIONS = [
   { value: 'createdAt', label: 'Created' },
@@ -45,6 +57,14 @@ function TasksPage() {
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
+
+  const [activeTask, setActiveTask] = useState(null)
+  const [savingTaskId, setSavingTaskId] = useState(null)
+  const [dragError, setDragError] = useState(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  )
 
   useEffect(() => {
     getProjects({ limit: 100 })
@@ -110,6 +130,34 @@ function TasksPage() {
         setDeleteTarget(null)
       })
       .finally(() => setDeleting(false))
+  }
+
+  const handleDragStart = ({ active }) => {
+    setActiveTask(tasks.find((t) => t.id === active.id) ?? null)
+  }
+
+  const handleDragEnd = ({ active, over }) => {
+    setActiveTask(null)
+    if (!over) return
+    const newStatus = over.id
+    const task = tasks.find((t) => t.id === active.id)
+    if (!task || task.status === newStatus) return
+
+    setDragError(null)
+    setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status: newStatus } : t))
+    setSavingTaskId(task.id)
+
+    updateTask(task.id, { status: newStatus })
+      .catch((err) => {
+        fetchTasks()
+        const code = err.response?.status
+        if (code === 403) {
+          setDragError('You do not have permission to update this task.')
+        } else {
+          setDragError(err.response?.data?.message || 'Failed to update task status.')
+        }
+      })
+      .finally(() => setSavingTaskId(null))
   }
 
   const selectCls = 'border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -216,17 +264,48 @@ function TasksPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {tasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                isAdmin={isAdmin}
-                isAssigned={task.assignedTo?.id === user?.id}
-                onDelete={setDeleteTarget}
-              />
-            ))}
-          </div>
+          <p className="text-xs text-gray-400 mb-3">
+            Drag tasks between columns to update status.
+          </p>
+
+          {dragError && (
+            <div className="mb-4">
+              <ErrorMessage message={dragError} />
+            </div>
+          )}
+
+          <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              {COLUMN_STATUSES.map((s) => (
+                <KanbanColumn
+                  key={s}
+                  status={s}
+                  tasks={groupTasksByStatus(tasks)[s]}
+                  isAdmin={isAdmin}
+                  userId={user?.id}
+                  onDelete={setDeleteTarget}
+                  savingTaskId={savingTaskId}
+                />
+              ))}
+            </div>
+
+            <DragOverlay dropAnimation={null}>
+              {activeTask ? (
+                <div className="rotate-1 shadow-2xl">
+                  <TaskCard
+                    task={activeTask}
+                    isAdmin={isAdmin}
+                    isAssigned={activeTask.assignedTo?.id === user?.id}
+                    onDelete={() => {}}
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
 
           {pagination && (
             <Pagination

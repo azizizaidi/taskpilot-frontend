@@ -16,7 +16,7 @@ function Sidebar() {
     : baseNavItems
 
   return (
-    <aside className="w-64 bg-white shadow-md flex-shrink-0">
+    <aside className="hidden md:block w-64 bg-white shadow-md flex-shrink-0">
       <div className="h-16 flex items-center px-6 border-b">
         <span className="text-xl font-bold text-blue-600">TaskPilot</span>
       </div>

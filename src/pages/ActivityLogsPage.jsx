@@ -13,6 +13,8 @@ function ActivityLogsPage() {
   const [meta, setMeta] = useState(null)
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [forbidden, setForbidden] = useState(false)
@@ -22,7 +24,7 @@ function ActivityLogsPage() {
     setLoading(true)
     setError(null)
     setForbidden(false)
-    getActivityLogs({ page, limit }, controller.signal)
+    getActivityLogs({ page, limit, dateFrom: dateFrom || undefined, dateTo: dateTo || undefined }, controller.signal)
       .then(({ logs: data, meta: pagination }) => {
         setLogs(data || [])
         setMeta(pagination || null)
@@ -37,10 +39,26 @@ function ActivityLogsPage() {
       })
       .finally(() => setLoading(false))
     return () => controller.abort()
-  }, [page, limit])
+  }, [page, limit, dateFrom, dateTo])
 
   const handleLimitChange = (e) => {
     setLimit(Number(e.target.value))
+    setPage(1)
+  }
+
+  const handleDateFromChange = (e) => {
+    setDateFrom(e.target.value)
+    setPage(1)
+  }
+
+  const handleDateToChange = (e) => {
+    setDateTo(e.target.value)
+    setPage(1)
+  }
+
+  const handleClearDates = () => {
+    setDateFrom('')
+    setDateTo('')
     setPage(1)
   }
 
@@ -88,6 +106,38 @@ function ActivityLogsPage() {
             </select>
           </div>
         </div>
+      </div>
+
+      {/* Date filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-gray-500 whitespace-nowrap">From</label>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={handleDateFromChange}
+            max={dateTo || undefined}
+            className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-gray-500 whitespace-nowrap">To</label>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={handleDateToChange}
+            min={dateFrom || undefined}
+            className="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        {(dateFrom || dateTo) && (
+          <button
+            onClick={handleClearDates}
+            className="text-xs text-gray-400 hover:text-gray-600 underline"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {logs.length === 0 ? (

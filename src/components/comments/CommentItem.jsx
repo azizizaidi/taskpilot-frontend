@@ -44,14 +44,14 @@ function CommentItem({ comment, currentUserId, isAdmin, onEdit, onDelete }) {
 
           {editing ? (
             <CommentForm
-              initialContent={comment.content}
+              initialContent={comment.comment || ''}
               submitLabel="Save"
               onSubmit={handleEdit}
               onCancel={() => setEditing(false)}
             />
           ) : (
             <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">
-              {comment.content}
+              {comment.comment || ''}
             </p>
           )}
         </div>
